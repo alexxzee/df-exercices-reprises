@@ -118,6 +118,11 @@ test('stock saisi à 0 : Partiel (0/quantité), comportement actuel figé', () =
   assert.match(lignesArticles(bon('2026-0418'))[0], /x 5   Partiel \(0\/5\)$/);
 });
 
+test('stock égal à la quantité : En stock', () => {
+  const tout = { numero: 'ESSAI', client: 'Essai', dateLimite: '2026-11-04', lignes: [{ ref: 'REF-1042', quantite: 120 }] };
+  assert.match(lignesArticles(editerBonPreparation(tout, catalogue, stocks, LE_2_NOVEMBRE))[0], /x 120 En stock$/);
+});
+
 // 6. Mentions
 test('article fragile : mention [FRAGILE]', () => {
   assert.match(lignesArticles(bon('2026-0413'))[1], / \[FRAGILE\]$/);
@@ -129,6 +134,13 @@ test('poids de plus de 25 kg : mention [2 PERS.]', () => {
 
 test('poids de 25 kg tout juste : aucune mention', () => {
   assert.match(lignesArticles(bon('2026-0413'))[0], /En stock$/);
+});
+
+test('article fragile et lourd : [FRAGILE] puis [2 PERS.]', () => {
+  const vitrage = { ref: 'REF-9001', libelle: 'Vitrage feuilleté 44.2', poids: 40, fragile: true, allee: 'G', emplacement: '01' };
+  const une = { numero: 'ESSAI', client: 'Essai', dateLimite: '2026-11-04', lignes: [{ ref: 'REF-9001', quantite: 1 }] };
+  const texte = editerBonPreparation(une, [vitrage], { 'REF-9001': 3 }, LE_2_NOVEMBRE);
+  assert.match(lignesArticles(texte)[0], /En stock \[FRAGILE\] \[2 PERS\.\]$/);
 });
 
 // 7. Quantités et pied
