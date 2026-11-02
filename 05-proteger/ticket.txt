@@ -1,7 +1,7 @@
 Ticket support n° 4127, reçu le 3 mars 2026
-De : Nadia Ferrand <n.ferrand@renov-alpes-12.example>
-Société : Rénov Alpes 12, 14 rue des Tanneurs, 73000 Chambéry
-Numéro client : C-00412
+De : [CONTACT] <[EMAIL]>
+Société : [SOCIÉTÉ], [ADRESSE]
+Numéro client : [CLIENT]
 Objet : remise absente sur le devis D-2026-0412
 
 Bonjour,
@@ -13,8 +13,8 @@ Pouvez-vous corriger le devis ?
 
 Autre souci : depuis hier, notre logiciel ne récupère plus vos devis.
 Voici la ligne de son journal :
-2026-03-03 09:14:07 ERREUR api.df-commandes : HTTP 401, api_key=dfc_live_9Tq4Wm2Xs7Lb5Rz8Kd3Nv6Hy1Pc0Fj
+2026-03-03 09:14:07 ERREUR api.df-commandes : HTTP 401, api_key=dfc_live_****
 
 Cordialement,
-Nadia Ferrand
-Responsable achats, Rénov Alpes 12
+[CONTACT]
+Responsable achats, [SOCIÉTÉ]
