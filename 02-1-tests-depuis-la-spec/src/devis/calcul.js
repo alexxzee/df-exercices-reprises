@@ -4,15 +4,19 @@ const TAUX_TVA = 0.2;
 const SEUIL_PORT_GRATUIT = 500;
 const FRAIS_PORT = 25;
 const REMISE_GRAND_COMPTE = 0.05;
+const PLAFOND_REMISE = 0.15;
 
 function arrondir(montant) {
-  return Math.round(montant * 100) / 100;
+  // Decaler la virgule sans l'erreur binaire de la multiplication par 100.
+  const [coefficient, exposant = '0'] = montant.toString().split('e');
+  const centimes = Number(`${coefficient}e${Number(exposant) + 2}`);
+  return Math.round(centimes) / 100;
 }
 
 function tauxRemiseQuantite(quantite) {
   if (quantite >= 100) return 0.12;
   if (quantite >= 50) return 0.08;
-  if (quantite > 10) return 0.05;
+  if (quantite >= 10) return 0.05;
   return 0;
 }
 
@@ -42,7 +46,9 @@ function calculerDevis(client, lignes) {
 
   let remiseClient = 0;
   if (client.grand_compte) {
-    remiseClient = totalNet * REMISE_GRAND_COMPTE;
+    const remiseQuantite = details.reduce((somme, d) => somme + d.remise, 0);
+    const plafondRestant = Math.max(0, totalBrut * PLAFOND_REMISE - remiseQuantite);
+    remiseClient = Math.min(totalNet * REMISE_GRAND_COMPTE, plafondRestant);
     totalNet -= remiseClient;
   }
 
