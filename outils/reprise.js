@@ -11,7 +11,11 @@ const { spawnSync } = require('node:child_process');
 
 const DEPOT_CORRIGES = 'https://github.com/alexxzee/df-exercices-reprises.git';
 const PARTIES = {
+  '01-date-livraison': ['3', '5'],
+  '02-1-tests-depuis-la-spec': ['4', '5', '7'],
   '03-refactoriser': ['3', '4', '5'],
+  '04-auditer': ['3', '5', '6'],
+  '05-proteger': ['4', '7'],
 };
 
 const exercice = process.argv[2];
@@ -40,7 +44,8 @@ if (racineGit.status !== 0) {
 }
 const racine = racineGit.stdout.trim();
 
-const branche = exercice.slice(0, 2) + '/partie-' + partie;
+// Préfixe numérique du dossier : 01-date-livraison donne 01, 02-1-tests-depuis-la-spec donne 02-1.
+const branche = exercice.match(/^\d+(-\d+)?(?=-)/)[0] + '/partie-' + partie;
 console.log('Récupération de la partie ' + partie + ' (' + branche + ')…');
 // --depth 1 : seul l'état de la partie est récupéré, sans l'historique du dépôt des reprises.
 const recuperation = git(['fetch', '--quiet', '--depth', '1', '--no-tags', DEPOT_CORRIGES, branche]);
@@ -61,7 +66,8 @@ fs.cpSync(dossierExercice, sauvegarde, {
 
 // 2. On vide le dossier de l'exercice (le dossier lui-même reste, il est ouvert dans l'éditeur).
 for (const nom of fs.readdirSync(dossierExercice)) {
-  if (nom === 'node_modules') continue;
+  // .env, ignoré par git, porte vos réglages locaux : il reste en place.
+  if (nom === 'node_modules' || nom === '.env') continue;
   fs.rmSync(path.join(dossierExercice, nom), { recursive: true, force: true });
 }
 
@@ -74,4 +80,4 @@ git(['reset', '--quiet', '--', '.']);
 
 console.log('Partie ' + partie + ' posée dans ' + exercice + '/.');
 console.log('Votre travail précédent est copié dans ' + path.relative(racine, sauvegarde) + '/.');
-console.log('Vérifiez : npm test');
+console.log(exercice === '04-auditer' ? 'Vérifiez : git status --short' : 'Vérifiez : npm test');
