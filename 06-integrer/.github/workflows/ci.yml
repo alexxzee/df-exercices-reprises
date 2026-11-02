@@ -30,3 +30,54 @@ jobs:
       - name: Installer gitleaks 8.30.1
         run: curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz | sudo tar xz -C /usr/local/bin gitleaks
       - run: gitleaks git -v --no-banner --redact .
+
+  revue-ia:
+    if: github.event_name == 'pull_request'
+    needs: [qualite, secrets]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Vérifier le jeton
+        id: jeton
+        env:
+          COPILOT_PAT: ${{ secrets.COPILOT_PAT }}
+        run: |
+          if [ -z "$COPILOT_PAT" ]; then
+            echo "revue IA sautée"
+            echo "present=non" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=oui" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v7.0.1 # https://github.com/actions/checkout/releases
+        if: steps.jeton.outputs.present == 'oui'
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7.1.0 # https://github.com/actions/setup-node/releases
+        if: steps.jeton.outputs.present == 'oui'
+        with:
+          node-version: 24
+      - if: steps.jeton.outputs.present == 'oui'
+        run: npm install -g @github/copilot
+      - name: Écrire le diff
+        if: steps.jeton.outputs.present == 'oui'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git diff "$BASE_SHA...$HEAD_SHA" -- . ':(exclude)package-lock.json' > pr.diff
+      - name: Relire avec l'agent
+        if: steps.jeton.outputs.present == 'oui'
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+        run: >
+          copilot -p "Relis la pull request dont le diff est dans pr.diff, selon ta consigne."
+          --agent relecteur-pr -s --no-ask-user --allow-all-tools
+          --deny-tool=write --deny-tool=shell --max-ai-credits 30 > revue.md
+      - name: Publier la revue
+        if: steps.jeton.outputs.present == 'oui'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr comment "$PR_NUMBER" --body-file revue.md
