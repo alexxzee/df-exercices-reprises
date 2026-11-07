@@ -10,22 +10,3 @@
 | | | Vérification désactivée | rien trouvé | |
 
 Non vérifié : le contenu réel du cache et des archives, la configuration du portail fournisseur.
-
-## Mesures
-
-| Version de l’agent | Failles localisées sur 7 | Lignes citées hors faille | Tours | Durée |
-|---|---|---|---|---|
-| v1 | 4 | 1 | | |
-| v2 | | | | |
-
-## Décision de fusion
-
-| Portique | Oui ou non | Preuve (commande et ce qu’elle affiche) |
-|---|---|---|
-| Je sais l’expliquer ? | | |
-| Lint et tests au vert ? | | |
-| Analyse de sécurité propre ? | | |
-| Dépendances vérifiées, licences ? | | |
-| Conforme aux conventions ? | | |
-
-Verdict :
